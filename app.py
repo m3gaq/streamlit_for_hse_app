@@ -1,5 +1,4 @@
 import streamlit as st
-import seaborn as sns
 import pandas as pd
 import numpy as np
 import plotly.figure_factory as ff
@@ -22,7 +21,7 @@ import megaquant_processing as mp
 
 #__________________________________        META        __________________________________#
 st.set_page_config(page_icon="💰", page_title="PD Model | MegaQuant")
-st.title("Привет Елизавета!")
+st.title("Привет Алина!")
 
 ###################################        META        ###################################
 ##########################################################################################
@@ -205,39 +204,124 @@ st.plotly_chart(fig_2d, use_container_width=True)
 #__________________________________       PREDICT  CSV        __________________________________#
 
 st.subheader("Предсказания 👇 ")
-
-c29, c30, c31 = st.columns([1, 1, 2])
-
-response = AgGrid(
-    shows,
-    gridOptions=gridOptions,
-    enable_enterprise_modules=True,
-    update_mode=GridUpdateMode.MODEL_CHANGED,
-    data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
-    fit_columns_on_grid_load=False,
-)
-
-df = pd.DataFrame(response["selected_rows"])
-
 @st.cache
 def predict(shows):
     return mp.predict_pretty(shows.copy())
 
+def dist_plot(y_pred_probability):
+    fig = ff.create_distplot([np.concatenate([[0,1],y_pred_probability])], ['Вероятность Дефолта'],show_hist=False,show_rug=False)
+    fig.update_layout(title='Распределение вероятности введенных наблюдений',
+                      xaxis_title="Веротяность Дефолта",
+                      yaxis_title="Плотность Наблюдений",
+                      legend_title="Легенда",
+                      showlegend=False,)
+    return fig
+
+def scatter_3d_clust(df_clust, x,y,z):
+    import plotly.express as px
+    fig = px.scatter_3d(df_clust, x,y,z,
+                        color='clusters')
+    return fig
+
+def get_clustered(df, k_to_try = 7):
+    test_df = df.copy()
+    import plotly.graph_objects as go
+    from sklearn.cluster import KMeans
+    import pingouin as pg
+    from collections import Counter
+    def try_different_clusters(K, data):
+        cluster_values = list(range(1, K+1))
+        inertias=[]
+        
+        for c in cluster_values:
+            model = KMeans(n_clusters = c,init='k-means++',max_iter=400,random_state=42)
+            model.fit(data)
+            inertias.append(model.inertia_)
+        
+        return inertias
+
+    # # !!!!!!!!!!!!!!______________________________________________________________________________________________________________________________________
+    kmeans_model = KMeans(init='k-means++',  max_iter=400, random_state=42)
+    kmeans_model.fit(test_df.drop('Вероятность Дефолта', axis = 1))
+    outputs = try_different_clusters(k_to_try, test_df)
+
+    # # ГРАФИК TO DO elbow_fig
+    
+    distances = pd.DataFrame({"clusters": list(range(1, 8)),"sum of squared distances": outputs})
+    elbow_fig = go.Figure()
+    elbow_fig.add_trace(go.Scatter(x=distances["clusters"], y=distances["sum of squared distances"]))
+
+    elbow_fig.update_layout(xaxis = dict(tick0 = 1,dtick = 1,tickmode = 'linear'),                  
+                      xaxis_title="Количество Кластеров",
+                      yaxis_title="Сумма Расстояний",
+                      title_text="График 'Метод локтя'")
+    
+
+    # автоматическое определение количества кластеров 
+    difference = []
+    for i in range(len(outputs) - 1): 
+      difference.append(outputs[i + 1] - outputs[i])
+    optimal_clusters = np.argmin(difference) + 3
+
+    kmeans_model_new = KMeans(n_clusters = optimal_clusters, init='k-means++',max_iter=400,random_state=42)
+    kmeans_model_new.fit(test_df)
+
+    # определение самых норм признаков для кластеризации 
+    cluster_centers = kmeans_model_new.cluster_centers_
+    test_df["clusters"] = kmeans_model_new.labels_
+    num_clusters = test_df["clusters"].nunique()
+
+    a = []
+    for clust1 in range(num_clusters):
+      for clust2 in range(clust1 + 1, num_clusters):
+        for i in test_df.columns:
+          df_clust0 = test_df[test_df['clusters']== clust1][i]
+          df_clust1 = test_df[test_df['clusters']== clust2][i]
+          p_val = pg.ttest(x= df_clust0, y= df_clust1, correction=False)['p-val'][0]
+          if p_val < 0.05:
+            a.append(i)
+
+    def printRepeating(arr):
+        res = []
+        freq = Counter(arr)
+        for i in freq:
+            if(freq[i] > num_clusters - 1):
+                res.append(i)
+        return res
+    features_for_cluster = printRepeating(a) + ['Вероятность Дефолта'] #+['clusters']
+
+    df_clust_info = test_df[features_for_cluster].groupby('clusters').mean()
+    df_clust = test_df
+    return df_clust, features_for_cluster,elbow_fig, df_clust_info
+
+
+# # Типо выводит введеную таблицу и дает возможность поставить галочки. Оказалось что это не надо(
+# response = AgGrid(
+#     shows,
+#     gridOptions=gridOptions,
+#     enable_enterprise_modules=True,
+#     update_mode=GridUpdateMode.MODEL_CHANGED,
+#     data_return_mode=DataReturnMode.FILTERED_AND_SORTED,
+#     fit_columns_on_grid_load=False,
+# )
+# df = pd.DataFrame(response["selected_rows"])
+
+df_to_clust = df_stats[df_stats['выборка'] == 'введенная выборка'].drop(columns=['выборка','Результат модели']) 
 prediction = predict(shows)
+pred_table = pd.DataFrame(prediction).T
 
-with c29:
+st.dataframe(pred_table.T)
+st.write(dist_plot(pred_table['Вероятность Дефолта']))
+
+
+
+c29, c30, c31 = st.columns([1, 1, 1])
+with c30:
     CSVButton = download_button(
-        pd.DataFrame(prediction).T,
+        pred_table,
         'prediction.csv',
-        'скачать предсказание'
+        'скачать предсказания'
     )
-
-with c31:
-    st.text("")
-
-    st.dataframe(pd.DataFrame(prediction))
-
-    st.text("")
 
 ###################################       PREDICT  CSV        ##################################
 ################################################################################################
@@ -248,17 +332,29 @@ with c31:
 #__________________________________       CLASTER  CSV        __________________________________#
 
 st.subheader("Кластерный анализ 🔎")
-pred_table = pd.DataFrame(prediction).T
 
-def dist_plot(y_pred_probability):
-    fig = ff.create_distplot([np.concatenate([[0,1],y_pred_probability])], ['Вероятность Дефолта'],show_hist=False,show_rug=False)
-    return fig
+if len(pred_table) >= 7:
+    # st.expander("Кластеризация была проведана по следующим данным").write(df_to_clust)
+    df_clust, features_for_cluster, elbow_fig, df_clust_info = get_clustered(df_to_clust)
 
-if len(pred_table) >= 3:
-    st.write(dist_plot(pred_table['Вероятность Дефолта']))
+    st.write('**Средение значения выделенных кластеров по наглядным признакам:**')
+    st.write(df_clust_info)
 
-if len(pred_table) <= 3:
-    st.write(f'Кластерный анализ разумен для более 3 наблюдений. Вы ввыели только {len(pred_table)}.')
+    st.write('**Визуализация кластеров:**')
+    st.expander(f"Кластеризация наглядна по cледующим {len(features_for_cluster)-2} признакам").write(features_for_cluster)
+    c1,c2,c3 = st.columns([1, 1, 1])
+    with c1:
+         x = st.selectbox('X',df_clust.columns)
+    with c2:
+        y = st.selectbox('Y',df_clust.columns)
+    with c3:
+        z = st.selectbox('Z',df_clust.columns)
+    st.write(scatter_3d_clust(df_clust, x,y,z))
+
+    st.write('**Оптимальное количество кластеров находиться по методу локтя:**')
+    st.write(elbow_fig)
+else:
+    st.write(f'Кластерный анализ разумен для более 7 наблюдений. Вы ввыели только {len(pred_table)}.')
 
 
 
