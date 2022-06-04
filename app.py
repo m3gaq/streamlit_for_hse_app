@@ -348,11 +348,11 @@ if len(pred_table) >= 7:
     st.expander(f"Кластеризация наглядна по cледующим {len(features_for_cluster)-2} признакам").write(features_for_cluster)
     c1,c2,c3 = st.columns([1, 1, 1])
     with c1:
-         x = st.selectbox('X',df_clust.columns)
+         x = st.selectbox('X',df_clust.columns,4)
     with c2:
-        y = st.selectbox('Y',df_clust.columns)
+        y = st.selectbox('Y',df_clust.columns,13)
     with c3:
-        z = st.selectbox('Z',df_clust.columns)
+        z = st.selectbox('Z',df_clust.columns,12)
     st.write(scatter_3d_clust(df_clust, x,y,z))
 
     st.write('**Оптимальное количество кластеров находиться по методу локтя:**')
