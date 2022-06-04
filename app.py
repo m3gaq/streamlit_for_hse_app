@@ -184,11 +184,11 @@ def scatter_2d(df_stats, x,y):
 c1,c2,c3 = st.columns([1, 1, 1])
 
 with c1:
-     x = st.selectbox('X',df_stats.columns,0)
+     x = st.selectbox('X',df_stats.columns,2)
 with c2:
-    y = st.selectbox('Y',df_stats.columns,1)
+    y = st.selectbox('Y',df_stats.columns,5)
 with c3:
-    z = st.selectbox('Z',df_stats.columns,2)
+    z = st.selectbox('Z',df_stats.columns,12)
 fig_3d = scatter_3d(df_stats, x,y,z)
 fig_2d = scatter_2d(df_stats, x,y)
 
