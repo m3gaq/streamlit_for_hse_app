@@ -192,7 +192,7 @@ with c3:
 fig_3d = scatter_3d(df_stats, x,y,z)
 fig_2d = scatter_2d(df_stats, x,y)
 
-st.plotly_chart(fig_3d, height=800)
+st.plotly_chart(fig_3d, height=1600)
 st.plotly_chart(fig_2d, use_container_width=True)
 
 ###################################      SHOW METRICS         ##################################
