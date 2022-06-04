@@ -215,7 +215,7 @@ def dist_plot(y_pred_probability):
                       yaxis_title="Плотность Наблюдений",
                       legend_title="Легенда",
                       showlegend=False,)
-    fig.update_layout(height=800, width=1000)
+    fig.update_layout(width=1000)
     return fig
 
 def scatter_3d_clust(df_clust, x,y,z):
@@ -257,7 +257,8 @@ def get_clustered(df, k_to_try = 7):
     elbow_fig.update_layout(xaxis = dict(tick0 = 1,dtick = 1,tickmode = 'linear'),                  
                       xaxis_title="Количество Кластеров",
                       yaxis_title="Сумма Расстояний",
-                      title_text="График 'Метод локтя'")
+                      title_text="График 'Метод локтя'", 
+                           width=1000)
     
 
     # автоматическое определение количества кластеров 
