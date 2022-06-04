@@ -21,7 +21,7 @@ import megaquant_processing as mp
 
 #__________________________________        META        __________________________________#
 st.set_page_config(page_icon="💰", page_title="PD Model | MegaQuant")
-st.set_option('wideMode' , True)
+
 st.title("Привет, Алина!")
 
 ###################################        META        ###################################
