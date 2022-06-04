@@ -21,7 +21,8 @@ import megaquant_processing as mp
 
 #__________________________________        META        __________________________________#
 st.set_page_config(page_icon="💰", page_title="PD Model | MegaQuant")
-st.title("Привет Алина!")
+ st.set_page_config(layout="wide")
+st.title("Привет, Алина!")
 
 ###################################        META        ###################################
 ##########################################################################################
@@ -76,14 +77,14 @@ else:
         ab_accounts_payable         = 1
         ab_other_borrowings         = 1
         bus_age                     = 1
-        ogrn_age                    = st.sidebar.slider('ogrn_age',        0, 1000, 135)
+        ogrn_age                    = st.sidebar.slider('ogrn_age',        0, 135, 20)
         adr_actual_age              = 1
         head_actual_age             = 1
-        cap_actual_age              = st.sidebar.slider('cap_actual_age',  0, 1000, 3)
+        cap_actual_age              = 0 #+st.sidebar.slider('cap_actual_age',  0, 1000, 3)
         ul_staff_range              = st.sidebar.select_slider('ar_sale_cost', ('[1-100]', '(100-500]', '> 500'))
-        ul_capital_sum              = st.sidebar.slider('ul_capital_sum', 0, 130, 25)
+        ul_capital_sum              = 25 #st.sidebar.slider('ul_capital_sum', 0, 130, 25)
         ul_founders_cnt             = 1
-        ul_branch_cnt               = st.sidebar.slider('ul_strategic_flg', 0, 130, 0)
+        ul_branch_cnt               = 0 #st.sidebar.slider('ul_strategic_flg', 0, 130, 0)
         ul_strategic_flg            = st.sidebar.select_slider('ar_sale_cost', (0,1))
         ul_systematizing_flg        = 1
         data = {
@@ -165,7 +166,9 @@ def scatter_3d(df_stats, x,y,z):
                         symbol='выборка',
                         hover_name='выборка',
                         opacity=0.4,
-                        size=df_stats['выборка'].replace({'выборка, на которой проводилось обучение': 0.1, 'введенная выборка':2}))
+                        size=df_stats['выборка'].replace({'выборка, на которой проводилось обучение': 0.1, '
+                                                          
+                                                          еденная выборка':2}))
     fig.update_layout(coloraxis_colorbar_x=-0.15)
     return fig
 
@@ -354,7 +357,7 @@ if len(pred_table) >= 7:
     st.write('**Оптимальное количество кластеров находиться по методу локтя:**')
     st.write(elbow_fig)
 else:
-    st.write(f'Кластерный анализ разумен для более 7 наблюдений. Вы ввыели только {len(pred_table)}.')
+    st.write(f'Кластерный анализ разумен для более 7 наблюдений. Вы ввели только {len(pred_table)}.')
 
 
 
