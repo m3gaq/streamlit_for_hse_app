@@ -166,7 +166,7 @@ def scatter_3d(df_stats, x,y,z):
                         hover_name='выборка',
                         opacity=0.4,
                         size=df_stats['выборка'].replace({'выборка, на которой проводилось обучение': 0.1, 'введенная выборка':2}))
-    fig.update_layout(coloraxis_colorbar_x=-0.15, height=800)
+    fig.update_layout(coloraxis_colorbar_x=-0.15, height=800, width=800)
     return fig
 
 def scatter_2d(df_stats, x,y):
