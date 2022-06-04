@@ -166,7 +166,7 @@ def scatter_3d(df_stats, x,y,z):
                         hover_name='выборка',
                         opacity=0.4,
                         size=df_stats['выборка'].replace({'выборка, на которой проводилось обучение': 0.1, 'введенная выборка':2}))
-    fig.update_layout(coloraxis_colorbar_x=-0.15, height=800, width=800)
+    fig.update_layout(coloraxis_colorbar_x=-0.15, height=800, width=1000)
     return fig
 
 def scatter_2d(df_stats, x,y):
@@ -178,7 +178,7 @@ def scatter_2d(df_stats, x,y):
                      symbol='выборка',
                      opacity=0.4,
                      size=df_stats['выборка'].replace({'выборка, на которой проводилось обучение': 0.1, 'введенная выборка':1}))
-    fig.update_layout(coloraxis_colorbar_x=-0.3)
+    fig.update_layout(coloraxis_colorbar_x=-0.3, height=800, width=1000)
     return fig
 
 c1,c2,c3 = st.columns([1, 1, 1])
@@ -192,8 +192,8 @@ with c3:
 fig_3d = scatter_3d(df_stats, x,y,z)
 fig_2d = scatter_2d(df_stats, x,y)
 
-st.plotly_chart(fig_3d, width=1600)
-st.plotly_chart(fig_2d, use_container_width=True)
+st.plotly_chart(fig_3d)
+st.plotly_chart(fig_2d)
 
 ###################################      SHOW METRICS         ##################################
 ################################################################################################
@@ -215,12 +215,15 @@ def dist_plot(y_pred_probability):
                       yaxis_title="Плотность Наблюдений",
                       legend_title="Легенда",
                       showlegend=False,)
+    fig.update_layout(height=800, width=1000)
     return fig
 
 def scatter_3d_clust(df_clust, x,y,z):
     import plotly.express as px
     fig = px.scatter_3d(df_clust, x,y,z,
                         color='clusters')
+        
+    fig.update_layout(height=800, width=1000)
     return fig
 
 def get_clustered(df, k_to_try = 7):
