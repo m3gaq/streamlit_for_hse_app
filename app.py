@@ -80,7 +80,7 @@ else:
         ogrn_age                    = st.sidebar.slider('ogrn_age',        0, 135, 20)
         adr_actual_age              = 1
         head_actual_age             = 1
-        cap_actual_age              = 0 #+st.sidebar.slider('cap_actual_age',  0, 1000, 3)
+        cap_actual_age              = 3 #+st.sidebar.slider('cap_actual_age',  0, 1000, 3)
         ul_staff_range              = st.sidebar.select_slider('ar_sale_cost', ('[1-100]', '(100-500]', '> 500'))
         ul_capital_sum              = 25 #st.sidebar.slider('ul_capital_sum', 0, 130, 25)
         ul_founders_cnt             = 1
